@@ -14,11 +14,11 @@ using namespace std;
 struct node
 {
 	 bool blocked;
-	 bool visited;
+	 int visited;
  };
 
 //Grid data
-const int rows = 5, cols = 5; //Grid dimensions
+const int rows = 10, cols = 5; //Grid dimensions
 node grid[rows][cols]; // The grid is a 2D array
 
 //==============================================================================================================================================================================
@@ -29,9 +29,9 @@ int find_block_size(int starti, int startj, int block_number)
 	//make sure the starting point is blocked, if not return 0 (i.e. size of this block is 0)
 	if(!start_node.blocked) return 0;
 	
-	static int blocks_sizes[rows*cols] = {0}; //the maximum number of blocks that can be in the grid is much less than rows*cols; I am too lazy to calculate it, so just use a vector :)
-	blocks_sizes[block_number]++;
-	grid[starti][startj].visited = true; //mark this node as expanded(counted in the block size), so we don't count it again in the future
+	int block_size = 0; //the maximum number of blocks that can be in the grid is much less than rows*cols; I am too lazy to calculate it, so just use a vector :)
+	block_size++; //increment current block size by one
+	grid[starti][startj].visited = block_number; //mark this node as expanded(counted in the block size), so we don't count it again in the future
 	
 	//node neighbors_list [rows*cols] ;
 	//vector<node> neighbors_list; //we do not know the size of the neighbors_list in advance, plus, we need to dynamically erase and add elements to it.
@@ -48,75 +48,67 @@ int find_block_size(int starti, int startj, int block_number)
 	*/
 	if(startj > 0) //There is a left column
 	{
-		if(grid[starti][startj-1].blocked && !(grid[starti][startj-1].visited)) //1. Checking the Left Neighbor
+		if(grid[starti][startj-1].blocked && grid[starti][startj-1].visited == -1) //1. Checking the Left Neighbor
 		{							
-			grid[starti][startj-1].visited = true; //mark this node as visited
-			blocks_sizes[block_number]++; //increment current block size by one
-			find_block_size(starti, startj-1, block_number); //find the neighboring nodes to the current node that are part of the same block and have not been visited
+			grid[starti][startj-1].visited = block_number; //mark this node as visited
+			block_size += find_block_size(starti, startj-1, block_number); //find the neighboring nodes to the current node that are part of the same block and have not been visited
 		}
 		
 		if(starti < rows-1)	//There is a bottom row
-			if(grid[starti+1][startj-1].blocked && !(grid[starti+1][startj-1].visited)) //2. Checking the Bottom-Left Neighbor
+			if(grid[starti+1][startj-1].blocked && grid[starti+1][startj-1].visited == -1) //2. Checking the Bottom-Left Neighbor
 			{
-				grid[starti+1][startj-1].visited = true; //mark this node as visited
-				blocks_sizes[block_number]++; //increment current block size by one
-				find_block_size(starti+1, startj-1, block_number); //find the neighboring nodes to the current node that are part of the same block and have not been visited
+				grid[starti+1][startj-1].visited = block_number; //mark this node as visited
+				block_size += find_block_size(starti+1, startj-1, block_number); //find the neighboring nodes to the current node that are part of the same block and have not been visited
 			}
 			
 		if(starti > 0)	//There is a top row
-			if(grid[starti-1][startj-1].blocked && !(grid[starti-1][startj-1].visited)) //3. Checking the Top-Left Neighbor
+			if(grid[starti-1][startj-1].blocked && grid[starti-1][startj-1].visited == -1) //3. Checking the Top-Left Neighbor
 			{
-				grid[starti-1][startj-1].visited = true; //mark this node as visited
-				blocks_sizes[block_number]++; //increment current block size by one
-				find_block_size(starti-1, startj-1, block_number); //find the neighboring nodes to the current node that are part of the same block and have not been visited
+				grid[starti-1][startj-1].visited = block_number; //mark this node as visited
+				block_size += find_block_size(starti-1, startj-1, block_number); //find the neighboring nodes to the current node that are part of the same block and have not been visited
 			}
 	}
 	
 	if(starti > 0)	//There is a top row
 	{
-		if(grid[starti-1][startj].blocked && !(grid[starti-1][startj].visited)) //4. Checking the Top neighbor
+		if(grid[starti-1][startj].blocked && grid[starti-1][startj].visited == -1) //4. Checking the Top neighbor
 		{
-			grid[starti-1][startj].visited = true; //mark this node as visited
-			blocks_sizes[block_number]++; //increment current block size by one
-			find_block_size(starti-1, startj, block_number); //find the neighboring nodes to the current node that are part of the same block and have not been visited
+			grid[starti-1][startj].visited = block_number; //mark this node as visited
+			block_size += find_block_size(starti-1, startj, block_number); //find the neighboring nodes to the current node that are part of the same block and have not been visited
 		}
 		
 		if(startj < cols-1) //There is a right column
-			if(grid[starti-1][startj+1].blocked && !(grid[starti-1][startj+1].visited)) //5. Checking the Top-Right neighbor
+			if(grid[starti-1][startj+1].blocked && grid[starti-1][startj+1].visited == -1) //5. Checking the Top-Right neighbor
 			{
-				grid[starti-1][startj+1].visited = true; //mark this node as visited
-				blocks_sizes[block_number]++; //increment current block size by one
-				find_block_size(starti-1, startj+1, block_number); //find the neighboring nodes to the current node that are part of the same block and have not been visited
+				grid[starti-1][startj+1].visited = block_number; //mark this node as visited
+				block_size += find_block_size(starti-1, startj+1, block_number); //find the neighboring nodes to the current node that are part of the same block and have not been visited
 			}
 	}
 		
 	
 	if(starti < rows-1)	//There is a bottom row
 	{
-		if(grid[starti+1][startj].blocked && !(grid[starti+1][startj].visited)) //6. Checking the Bottom neighbor
+		if(grid[starti+1][startj].blocked && grid[starti+1][startj].visited == -1) //6. Checking the Bottom neighbor
 		{
-			grid[starti+1][startj].visited = true; //mark this node as visited
-			blocks_sizes[block_number]++; //increment current block size by one
-			find_block_size(starti+1, startj, block_number); //find the neighboring nodes to the current node that are part of the same block and have not been visited
+			grid[starti+1][startj].visited = block_number; //mark this node as visited
+			block_size += find_block_size(starti+1, startj, block_number); //find the neighboring nodes to the current node that are part of the same block and have not been visited
 		}
 		if(startj < cols-1) //There is a right column
-			if(grid[starti+1][startj+1].blocked && !(grid[starti+1][startj+1].visited)) //7. Checking the Bottom-Right Neighbor
+			if(grid[starti+1][startj+1].blocked && grid[starti+1][startj+1].visited == -1) //7. Checking the Bottom-Right Neighbor
 			{
-				grid[starti+1][startj+1].visited = true; //mark this node as visited
-				blocks_sizes[block_number]++; //increment current block size by one
-				find_block_size(starti+1, startj+1, block_number); //find the neighboring nodes to the current node that are part of the same block and have not been visited
+				grid[starti+1][startj+1].visited = block_number; //mark this node as visited
+				block_size += find_block_size(starti+1, startj+1, block_number); //find the neighboring nodes to the current node that are part of the same block and have not been visited
 			}
 	}
 	if(startj < cols-1) // There is a right column
-		if(grid[starti][startj+1].blocked && !(grid[starti][startj+1].visited)) //8. Checking the Right Neighbor
+		if(grid[starti][startj+1].blocked && grid[starti][startj+1].visited == -1) //8. Checking the Right Neighbor
 		{
-			grid[starti][startj+1].visited = true; //mark this node as visited
-			blocks_sizes[block_number]++; //increment current block size by one
-			find_block_size(starti, startj+1, block_number); //find the neighboring nodes to the current node that are part of the same block and have not been visited
+			grid[starti][startj+1].visited = block_number; //mark this node as visited
+			block_size += find_block_size(starti, startj+1, block_number); //find the neighboring nodes to the current node that are part of the same block and have not been visited
 		}		
 	
 		
-	return blocks_sizes[block_number]; //return neighbors_index;
+	return block_size; //return neighbors_index;
 }
 //==============================================================================================================================================================================
 //==============================================================================================================================================================================
@@ -125,7 +117,7 @@ bool get_next_block(int starti, int startj, int& nexti, int& nextj) //returns 1 
 	for(int i = starti; i < rows; i++)
 		for(int j = startj; j < cols; j++)
 		{
-			if(!(grid[i][j].visited) && grid[i][j].blocked)
+			if(grid[i][j].visited == -1 && grid[i][j].blocked)
 			{
 				//Pass by reference to your caller the position of new found block 
 				nexti = i;
@@ -138,26 +130,37 @@ bool get_next_block(int starti, int startj, int& nexti, int& nextj) //returns 1 
 }
 //==============================================================================================================================================================================
 //==============================================================================================================================================================================
-int main()
-{
-	//Initialize the grid
+void initialize_grid()
+{//Initialize the grid
 	for(int i=0;i<rows;i++)
 		for(int j=0;j<cols;j++)
 		{
-			grid[i][j].visited = false;
-			grid[i][j].blocked = ((i)%2);
+			grid[i][j].visited = -1;
+			grid[i][j].blocked = !((i-j)%3);
 		}
-		
+}
+//==============================================================================================================================================================================
+//==============================================================================================================================================================================
+void display_grid()
+{
 	//Display the grid
 	for(int i=0;i<rows;i++)
 	{
 		for(int j=0;j<cols;j++)
 		{
-			if(grid[i][j].blocked)	cout << "#";
+			if(grid[i][j].blocked)	cout << grid[i][j].visited;
 			else  cout << "_";
 		}
 		cout << endl;
 	}
+}
+//==============================================================================================================================================================================
+//==============================================================================================================================================================================
+int main()
+{
+	initialize_grid();
+	cout << "Grid Map: (-1 is a blocked node):\n";
+	display_grid();
 		
 	//get the next block and find its size
 	//int i=0, j=0; //search indices
@@ -170,8 +173,8 @@ int main()
 		for(int j = 0; j < cols; j++)
 		{
 			cout << "Exploring node[" << i << "][" << j << "]:\t";
-			if(grid[i][j].visited){
-				cout << "Already visited.\n";
+			if(grid[i][j].visited != -1){
+				cout << "Already visited under block " << grid[i][j].visited << ".\n";
 				continue;
 			}
 			
@@ -180,20 +183,21 @@ int main()
 				cout << "Found a new block.";
 				block_size = find_block_size(starti,startj, block_number); 
 				cout << "It is of size: " << block_size << endl;
-				/*if(block_size > biggest_block_size)
+				if(block_size > biggest_block_size)
 				{
 					biggest_block_size = block_size;
 					biggest_blocki = starti;
 					biggest_blockj = startj;
-				}*/
+				}
 				block_number++; // block count
+				i = starti; j = startj; //skip the empty nodes
 			}
 			else
 				cout << "No block found.\n";
 		}
 	
 	if(block_number == 0)
-		cout << "There are no blocks in the grid";
+		cout << "There are no blocks in the grid\n";
 	else
 	{
 		cout << "There are " << block_number << " blocks in the grid.\n";
@@ -201,4 +205,5 @@ int main()
 		cout << " The largest block was found at position: [" << biggest_blocki << "][" << biggest_blockj << "]\n";
 	}
 
+	display_grid();
 }
